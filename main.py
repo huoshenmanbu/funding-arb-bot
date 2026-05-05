@@ -45,6 +45,7 @@ def parse_args():
     g.add_argument("--simulate", action="store_true", help="模拟交易（虚拟建仓，记录到DB）")
     p.add_argument("--t3", action="store_true", help="启用 T3")
     p.add_argument("--no-t3", action="store_true", help="关闭 T3")
+    p.add_argument("--yes", action="store_true", help="实盘模式跳过二次确认（用于 PM2/systemd）")
     p.add_argument("--config", type=str, default="config.yaml")
     return p.parse_args()
 
@@ -831,7 +832,9 @@ def main():
 
     if mode == "live":
         print_plan(plan)
-        if sys.stdin.isatty():
+        if args.yes:
+            logger.info("实盘模式（--yes 已确认，跳过二次确认）")
+        elif sys.stdin.isatty():
             confirm = input("\n  ⚠️  实盘模式，确认? [Y/n] ").strip().lower()
             if confirm and confirm != "y":
                 print("  已取消")
